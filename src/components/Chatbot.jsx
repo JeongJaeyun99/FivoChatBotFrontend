@@ -55,8 +55,19 @@ export default function Chatbot() {
         credentials: 'include',
       });
       const data = await res.json();
-      typeEffect(data.response, () => {
-        setMessages((prev) => [...prev, { sender: 'bot', text: data.response }]);
+
+      // ✅ suggestions가 있으면 텍스트로 덧붙이기
+      let botResponse = data.response;
+
+      if (data.suggestions && data.suggestions.length > 0) {
+        const suggestionText = data.suggestions
+          .map((s, i) => `${i + 1}. ${s}`)
+          .join('\n');
+        botResponse += `\n\n${suggestionText}`;
+      }
+
+      typeEffect(botResponse, () => {
+        setMessages((prev) => [...prev, { sender: 'bot', text: botResponse }]);
         setTyping('');
       });
     } catch (err) {
